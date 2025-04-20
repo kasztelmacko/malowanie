@@ -22,8 +22,7 @@ class InitializePainterProcess(ProcessBase):
         else:
             new_width, new_height = original_width, original_height
 
-        scaled_target_image = self.target_image.resize(new_width, new_height)
+        scaled_image = self.target_image.resize(new_width, new_height)
         blank_canvas = self.target_image.create_blank_canvas(new_width, new_height)
-
-        return scaled_target_image, blank_canvas
+        return scaled_image, blank_canvas
 

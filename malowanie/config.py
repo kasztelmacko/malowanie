@@ -23,6 +23,14 @@ MODELS_DIR = PROJ_ROOT / "models"
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
 
+## PainterProcessConfig
+SCALED_MAX_WIDTH = 1024
+
+## PaintByNumberProcessConfig
+N_COLORS = 20
+DENOSING_KERNEL_SIZE = 5
+
+
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135
 try:
