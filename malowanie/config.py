@@ -11,7 +11,6 @@ load_dotenv()
 PROJ_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJ_ROOT) not in sys.path:
     sys.path.append(str(PROJ_ROOT))
-logger.info(f"PROJ_ROOT path is: {PROJ_ROOT}")
 
 DATA_DIR = PROJ_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
