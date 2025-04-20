@@ -28,7 +28,7 @@ SCALED_MAX_WIDTH = 1024
 
 ## PaintByNumberProcessConfig
 N_COLORS = 20
-DENOSING_KERNEL_SIZE = 5
+DENOSING_KERNEL_SIZE = 9
 
 
 # If tqdm is installed, configure loguru with tqdm.write

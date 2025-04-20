@@ -43,9 +43,34 @@ class PaintByNumberProcess:
         denoised = np.median(windows, axis=(3, 4)).squeeze()
         
         return denoised.astype(np.uint8)
+    
+    def create_image_outline(self, image_array: np.array = None):
+        if image_array is None:
+            image_array = self.scaled_image
+        
+        image_tensor = torch.from_numpy(image_array).float()
+        gray = (image_tensor[..., :3] @ torch.tensor([0.2989, 0.5870, 0.1140])).unsqueeze(0)
+        
+        sobel_x = torch.tensor([[[[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]]], dtype=torch.float32)
+        sobel_y = torch.tensor([[[[-1, -2, -1], [0, 0, 0], [1, 2, 1]]]], dtype=torch.float32)
+        
+        grad_x = torch.nn.functional.conv2d(gray.unsqueeze(0), sobel_x, padding=1)
+        grad_y = torch.nn.functional.conv2d(gray.unsqueeze(0), sobel_y, padding=1)
+        gradient_magnitude = (grad_x**2 + grad_y**2).sqrt().squeeze()
+
+        edges = (gradient_magnitude > 30).numpy()
+
+        outline_image = self.blank_canvas.copy()
+        outline_image[edges] = [0, 0, 0]
+        
+        return outline_image
+    
+    def create_color_palette(self, image_array: np.array = None):
+        pass
         
 
     def generate(self):
         kmeans_image = self.apply_kmeans(image_array=self.scaled_image)
         denoised_image = self.remove_noise_artifacts(image_array=kmeans_image, kernel_size=self.denoising_kernel_size)
-        return kmeans_image, denoised_image
+        outline_image = self.create_image_outline(image_array=denoised_image)
+        return denoised_image, outline_image
