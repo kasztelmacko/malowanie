@@ -3,7 +3,7 @@ from malowanie.src.process_classes.image_base import ImageBase
 
 class ProcessBase(ABC):
     @abstractmethod
-    def generate(self, *args, **kwargs):
+    def generate(self):
         pass
     
 class InitializePainterProcess(ProcessBase):
@@ -25,4 +25,3 @@ class InitializePainterProcess(ProcessBase):
         scaled_image = self.target_image.resize(new_width, new_height)
         blank_canvas = self.target_image.create_blank_canvas(new_width, new_height)
         return scaled_image, blank_canvas
-

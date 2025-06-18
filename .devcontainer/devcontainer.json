@@ -15,6 +15,9 @@
     "mounts": [
       "source=${localWorkspaceFolder}/data,target=/workspace/data,type=bind,consistency=cached"
     ],
-    "remoteUser": "vscode"
+    "remoteUser": "vscode",
+    "containerEnv": {
+      "PYTHONPATH": "/workspaces/malowanie"
+    }
   }
   

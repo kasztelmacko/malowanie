@@ -1,9 +1,9 @@
-from malowanie.src.process_classes.process_base import ProcessBase, InitializePainterProcess
+from malowanie.src.process_classes.process_base import InitializePainterProcess
 from malowanie.src.process_classes.image_base import ImageBase
 from malowanie.src.process_classes.pbn_process import PaintByNumberProcess
 
-class CreatePaintByNumberProcess(ProcessBase):
-    def generate(self, target_image_name: str, scaled_max_width: int, n_colors: int, denoising_kernel_size: int):
+class CreatePaintByNumberProcess:
+    def generate(self, target_image_name=None, scaled_max_width=None, n_colors=None, denoising_kernel_size=None):
         image = ImageBase(image_name=target_image_name)
         process_initializator = InitializePainterProcess(
             target_image=image,
