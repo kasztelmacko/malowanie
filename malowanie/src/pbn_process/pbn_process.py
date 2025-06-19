@@ -16,6 +16,7 @@ class CreatePaintByNumberProcess:
             n_clusters=n_colors,
             denoising_kernel_size=denoising_kernel_size,
         )
-        denoised_image, outline_image = pbn_process.generate()
+        denoised_image, numbered_outline, palette = pbn_process.generate()
         image.show_image(denoised_image)
-        image.show_image(outline_image)
+        image.show_image(numbered_outline)
+        print(palette)

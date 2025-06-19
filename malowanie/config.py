@@ -27,7 +27,7 @@ FIGURES_DIR = REPORTS_DIR / "figures"
 SCALED_MAX_WIDTH = 1024
 
 ## PaintByNumberProcessConfig
-N_COLORS = 20
+N_COLORS = 16
 DENOSING_KERNEL_SIZE = 9
 
 

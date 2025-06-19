@@ -3,6 +3,10 @@ from numpy.lib.stride_tricks import sliding_window_view
 import imageio as iio
 import torch
 from fast_pytorch_kmeans import KMeans
+from skimage.morphology import skeletonize
+from skimage.filters import threshold_local
+from skimage.measure import label
+import cv2
 
 class PaintByNumberProcess:
     def __init__(self, scaled_image, blank_canvas, n_clusters, denoising_kernel_size):
@@ -12,22 +16,20 @@ class PaintByNumberProcess:
         self.denoising_kernel_size = denoising_kernel_size
         
     def apply_kmeans(self, image_array: np.array = None):
-        """Apply K-means clustering to the input image for color quantization.
-        """
         if image_array is None:
             image_array = self.scaled_image
-        
+
         h, w, c = image_array.shape
         image_tensor = torch.from_numpy(image_array).float()
         pixel_values = image_tensor.view(-1, c)
 
-        kmeans = KMeans(n_clusters=self.n_clusters, mode='euclidean', verbose=0)
-        labels = kmeans.fit_predict(pixel_values)
-        centers = kmeans.centroids
-        
-        quantized_pixels = centers[labels]
+        self.kmeans = KMeans(n_clusters=self.n_clusters, mode='euclidean', verbose=0)
+        self.kmeans_labels = self.kmeans.fit_predict(pixel_values)
+        self.kmeans_centroids = self.kmeans.centroids
+
+        quantized_pixels = self.kmeans_centroids[self.kmeans_labels]
         quantized_image = quantized_pixels.view(h, w, c)
-        
+
         return quantized_image.numpy().astype(np.uint8)
     
     def remove_noise_artifacts(self, image_array: np.array = None, kernel_size: int = 3):
@@ -57,20 +59,60 @@ class PaintByNumberProcess:
         grad_x = torch.nn.functional.conv2d(gray.unsqueeze(0), sobel_x, padding=1)
         grad_y = torch.nn.functional.conv2d(gray.unsqueeze(0), sobel_y, padding=1)
         gradient_magnitude = (grad_x**2 + grad_y**2).sqrt().squeeze()
+        gradient_np = gradient_magnitude.numpy() if torch.is_tensor(gradient_magnitude) else gradient_magnitude
 
-        edges = (gradient_magnitude > 30).numpy()
+        adaptive_thresh = threshold_local(gradient_np, block_size=101, method='gaussian')
+        edges = (gradient_np > adaptive_thresh).astype(np.uint8)
 
         outline_image = self.blank_canvas.copy()
-        outline_image[edges] = [0, 0, 0]
+        outline_image[skeletonize(edges)] = [0, 0, 0]
         
         return outline_image
-    
-    def create_color_palette(self, image_array: np.array = None):
-        pass
-        
 
+    def create_color_palette(self):
+        if self.kmeans_centroids is None or self.kmeans_labels is None:
+            raise ValueError("KMeans must be run before calling create_color_palette.")
+
+        h, w, _ = self.scaled_image.shape
+        indexed_image = self.kmeans_labels.view(h, w).numpy()
+        palette = self.kmeans_centroids.numpy().astype(np.uint8)
+
+        return palette, indexed_image
+    
+
+    def annotate_regions_with_numbers(self, outline_image, indexed_image):
+        annotated = outline_image.copy()
+
+        for cluster_id in range(self.n_clusters):
+            mask = (indexed_image == cluster_id)
+            labeled_regions = label(mask)
+
+            for region_id in range(1, labeled_regions.max() + 1):
+                region_mask = labeled_regions == region_id
+                coords = np.argwhere(region_mask)
+                if coords.shape[0] < 50:
+                    continue
+                
+                centroid_y, centroid_x = coords.mean(axis=0).astype(int)
+
+                cv2.putText(
+                    annotated,
+                    str(cluster_id + 1),
+                    (centroid_x, centroid_y),
+                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=0.4,
+                    color=(0, 0, 0),
+                    thickness=1,
+                    lineType=cv2.LINE_AA
+                )
+
+        return annotated
+        
     def generate(self):
         kmeans_image = self.apply_kmeans(image_array=self.scaled_image)
         denoised_image = self.remove_noise_artifacts(image_array=kmeans_image, kernel_size=self.denoising_kernel_size)
         outline_image = self.create_image_outline(image_array=denoised_image)
-        return denoised_image, outline_image
+        palette, indexed_image = self.create_color_palette()
+        numbered_outline = self.annotate_regions_with_numbers(outline_image, indexed_image)
+
+        return denoised_image, numbered_outline, palette

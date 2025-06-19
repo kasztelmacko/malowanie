@@ -6,6 +6,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+RUN sudo apt update \
+    sudo apt install -y libgl1
+
 # Optional: pre-install Python packages
 COPY requirements.txt /tmp/pip-tmp/
 RUN pip install --no-cache-dir -r /tmp/pip-tmp/requirements.txt || true
