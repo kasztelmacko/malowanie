@@ -1,6 +1,7 @@
 from malowanie.src.process_classes.process_base import InitializePainterProcess
 from malowanie.src.process_classes.image_base import ImageBase
 from malowanie.src.process_classes.pbn_process import PaintByNumberProcess
+from malowanie import config as CONF
 
 class CreatePaintByNumberProcess:
     def generate(self, target_image_name=None, scaled_max_width=None, n_colors=None, denoising_kernel_size=None):
@@ -18,5 +19,7 @@ class CreatePaintByNumberProcess:
         )
         denoised_image, numbered_outline, palette = pbn_process.generate()
         image.show_image(denoised_image)
+        image.save_image(denoised_image, image.image_name, CONF.PROCESSED_DATA_DIR)
         image.show_image(numbered_outline)
+        image.save_image(numbered_outline, image.image_name, CONF.OUTLINES_DATA_DIR)
         print(palette)

@@ -14,9 +14,8 @@ if str(PROJ_ROOT) not in sys.path:
 
 DATA_DIR = PROJ_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
-INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
-EXTERNAL_DATA_DIR = DATA_DIR / "external"
+OUTLINES_DATA_DIR = DATA_DIR / "outlines"
 
 MODELS_DIR = PROJ_ROOT / "models"
 
@@ -27,7 +26,7 @@ FIGURES_DIR = REPORTS_DIR / "figures"
 SCALED_MAX_WIDTH = 1024
 
 ## PaintByNumberProcessConfig
-N_COLORS = 16
+N_COLORS = 20
 DENOSING_KERNEL_SIZE = 9
 
 

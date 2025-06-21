@@ -65,7 +65,7 @@ class PaintByNumberProcess:
         edges = (gradient_np > adaptive_thresh).astype(np.uint8)
 
         outline_image = self.blank_canvas.copy()
-        outline_image[skeletonize(edges)] = [0, 0, 0]
+        outline_image[skeletonize(edges)] = [180, 180, 180]
         
         return outline_image
 
@@ -90,7 +90,7 @@ class PaintByNumberProcess:
             for region_id in range(1, labeled_regions.max() + 1):
                 region_mask = labeled_regions == region_id
                 coords = np.argwhere(region_mask)
-                if coords.shape[0] < 50:
+                if coords.shape[0] < 100:
                     continue
                 
                 centroid_y, centroid_x = coords.mean(axis=0).astype(int)
@@ -100,8 +100,8 @@ class PaintByNumberProcess:
                     str(cluster_id + 1),
                     (centroid_x, centroid_y),
                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=0.4,
-                    color=(0, 0, 0),
+                    fontScale=0.2,
+                    color=(180, 180, 180),
                     thickness=1,
                     lineType=cv2.LINE_AA
                 )
