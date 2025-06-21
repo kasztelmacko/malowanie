@@ -9,11 +9,15 @@ from skimage.measure import label
 import cv2
 
 class PaintByNumberProcess:
-    def __init__(self, scaled_image, blank_canvas, n_clusters, denoising_kernel_size):
+    def __init__(self, scaled_image, blank_canvas, n_clusters, denoising_kernel_size, min_region_size, font_color, font_scale, font_thickness):
         self.scaled_image = scaled_image
         self.blank_canvas = blank_canvas
         self.n_clusters = n_clusters
         self.denoising_kernel_size = denoising_kernel_size
+        self.min_region_size = min_region_size
+        self.font_color = font_color
+        self.font_scale = font_scale
+        self.font_thickness = font_thickness
         
     def apply_kmeans(self, image_array: np.array = None):
         if image_array is None:
@@ -65,7 +69,7 @@ class PaintByNumberProcess:
         edges = (gradient_np > adaptive_thresh).astype(np.uint8)
 
         outline_image = self.blank_canvas.copy()
-        outline_image[skeletonize(edges)] = [180, 180, 180]
+        outline_image[skeletonize(edges)] = list(self.font_color)
         
         return outline_image
 
@@ -90,7 +94,7 @@ class PaintByNumberProcess:
             for region_id in range(1, labeled_regions.max() + 1):
                 region_mask = labeled_regions == region_id
                 coords = np.argwhere(region_mask)
-                if coords.shape[0] < 100:
+                if coords.shape[0] < self.min_region_size:
                     continue
                 
                 centroid_y, centroid_x = coords.mean(axis=0).astype(int)
@@ -100,9 +104,9 @@ class PaintByNumberProcess:
                     str(cluster_id + 1),
                     (centroid_x, centroid_y),
                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=0.2,
-                    color=(180, 180, 180),
-                    thickness=1,
+                    fontScale=self.font_scale,
+                    color=self.font_color,
+                    thickness=self.font_thickness,
                     lineType=cv2.LINE_AA
                 )
 

@@ -28,6 +28,12 @@ SCALED_MAX_WIDTH = 1024
 ## PaintByNumberProcessConfig
 N_COLORS = 20
 DENOSING_KERNEL_SIZE = 9
+# Font configuration
+FONT_COLOR = (180, 180, 180)
+FONT_SCALE = 0.2
+FONT_THICKNESS = 1
+
+MIN_REGION_SIZE = 100
 
 
 # If tqdm is installed, configure loguru with tqdm.write
