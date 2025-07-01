@@ -18,6 +18,15 @@ class PaintByNumberProcess:
         self.font_color = font_color
         self.font_scale = font_scale
         self.font_thickness = font_thickness
+
+    def generate(self):
+        kmeans_image = self.apply_kmeans(image_array=self.scaled_image)
+        denoised_image = self.remove_noise_artifacts(image_array=kmeans_image, kernel_size=self.denoising_kernel_size)
+        outline_image = self.create_image_outline(image_array=denoised_image)
+        palette, indexed_image = self.create_color_palette()
+        numbered_outline = self.annotate_regions_with_numbers(outline_image, indexed_image)
+
+        return denoised_image, numbered_outline, palette
         
     def apply_kmeans(self, image_array: np.array = None):
         if image_array is None:
@@ -103,20 +112,11 @@ class PaintByNumberProcess:
                     annotated,
                     str(cluster_id + 1),
                     (centroid_x, centroid_y),
-                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontFace=cv2.FONT_HERSHEY_DUPLEX,
                     fontScale=self.font_scale,
                     color=self.font_color,
                     thickness=self.font_thickness,
-                    lineType=cv2.LINE_AA
+                    lineType=cv2.FILLED
                 )
 
         return annotated
-        
-    def generate(self):
-        kmeans_image = self.apply_kmeans(image_array=self.scaled_image)
-        denoised_image = self.remove_noise_artifacts(image_array=kmeans_image, kernel_size=self.denoising_kernel_size)
-        outline_image = self.create_image_outline(image_array=denoised_image)
-        palette, indexed_image = self.create_color_palette()
-        numbered_outline = self.annotate_regions_with_numbers(outline_image, indexed_image)
-
-        return denoised_image, numbered_outline, palette
